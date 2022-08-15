@@ -4,6 +4,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const sendEmail = require("../utils/sendemail");
 const crypto = require("crypto");
+const fetchuser = require("../middleware/fetchuser");
 
 router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
@@ -69,7 +70,7 @@ router.post("/forgotpassword", async (req, res) => {
       const resetToken = user.getResetPasswordToken();
       await user.save();
 
-      const resetUrl = `http://localhost:8000/api/auth/passwordreset/${resetToken}`;
+      const resetUrl = `http://localhost:3000/resetpassword/${resetToken}`;
       const message = `
       <h1>You have requested a password reset </h1>
       <p> Please go through this link to reset your password </p>
@@ -125,6 +126,10 @@ router.put("/passwordreset/:resetToken", async (req, res) => {
       res.status(500).send({error: "Internal Server Error"})
   }
   });
+
+  router.post("/getuserdata", fetchuser, async(req, res) =>{
+    res.send({data: req.user});
+  })
 
 const sendToken = async (user, statusCode, res) => {
   const token = user.getSignedToken();
